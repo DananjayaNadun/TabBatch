@@ -34,8 +34,13 @@ tagged release is cut.
   `CollectionRepository`.
 - Jetpack Compose UI: Home, Collection, Group, and Export screens, Material 3 theme, and
   navigation graph (`ui/navigation`).
-- Unit test suite (68 tests) covering the domain layer: URL normalization, domain grouping,
-  duplicate detection, CSV/JSON import and export, and text export.
+- Unit test suite covering the domain layer: URL normalization, domain grouping, duplicate
+  detection, CSV/JSON import and export, text export, known grouping-heuristic limitations, and
+  a large-dataset (1,000+ record) pipeline stress test.
+- Instrumented test suite (`PdfExporterInstrumentedTest`, runs on-device/emulator) covering PDF
+  export, including multi-page pagination for large collections.
+- Import UI now reports partial success (e.g. "57 of 60 imported, 3 invalid") with the specific
+  rejected lines and reasons, instead of only succeeding fully or failing fully.
 - Project documentation: `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`,
   `docs/ARCHITECTURE.md`, `docs/ARCHITECTURE_DECISIONS.md`, `docs/EXPORT_FORMATS.md`,
   `docs/PLATFORM_LIMITATIONS.md`, `docs/DEVELOPMENT.md`.
@@ -47,11 +52,15 @@ tagged release is cut.
 - `UrlNormalizer` now correctly extracts the host from internationalized (non-ASCII) URLs before
   punycode conversion; previously `java.net.URI#getHost()` returning null for such hosts caused
   every IDN URL to be rejected as invalid.
+- `MainActivity` now overrides `onNewIntent`, so a share (`ACTION_SEND`/`ACTION_SEND_MULTIPLE`)
+  received while TabBatch is already running (its `singleTask` launch mode routes a second share
+  there instead of `onCreate`) is picked up instead of silently doing nothing.
 
 ### Known limitations
 
 - No live Chrome for Android tab access — not possible with a public API today. See
   `docs/PLATFORM_LIMITATIONS.md`.
-- PDF export, local persistence (`CollectionRepository`), and Compose UI screens do not yet have
-  instrumentation/UI test coverage — only the domain layer is unit tested so far.
-- No 1,000-record stress test has been run yet against the PDF exporter specifically.
+- Local persistence (`CollectionRepository`) and Compose UI screens still do not have
+  instrumentation/UI test coverage; PDF export now does (`PdfExporterInstrumentedTest`).
+- Device screenshots of Home, Collection, Group, and Export are captured and linked from
+  `README.md` (`docs/screenshots/`).

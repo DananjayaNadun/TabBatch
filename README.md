@@ -18,8 +18,16 @@ you can open with anything.
 
 ## Screenshots
 
-_Screenshots/GIF placeholder — add device captures of the Home, Collection, Group, and Export
-screens here before publishing._
+Captured on an Android emulator (API 34, 1080x2400) from a 60-URL synthetic demo collection
+(5 domains, 5 exact duplicates):
+
+| Home | Collection overview |
+|---|---|
+| ![Home screen](docs/screenshots/home.png) | ![Collection overview](docs/screenshots/collection.png) |
+
+| Group detail | Export |
+|---|---|
+| ![Group detail](docs/screenshots/group.png) | ![Export screen](docs/screenshots/export.png) |
 
 ## Features
 
@@ -93,6 +101,12 @@ gradlew.bat assembleDebug
 ```
 
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
+
+> **Windows checkout path note:** if your checkout path contains non-ASCII characters (accented
+> letters, em dashes, etc.), Gradle's test workers can fail with spurious `ClassNotFoundException`
+> errors even though the code compiles fine. Building from an ASCII-only path avoids it. See
+> [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md#a-note-on-non-ascii-checkout-paths-on-windows) for
+> the full explanation and a registry-based alternative fix.
 
 ## Testing
 

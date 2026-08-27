@@ -11,11 +11,9 @@ If you believe you've found a security issue (for example: a way for exported fi
 data unexpectedly, a Storage Access Framework misuse that exposes files outside the intended
 scope, or an issue in how imported/untrusted CSV/JSON is parsed), please report it responsibly:
 
-- **Preferred:** open a [GitHub Security Advisory](../../security/advisories/new) on this
-  repository (private to maintainers until resolved).
-- **Alternative:** email `security@tabbatch.example` (placeholder — replace with a maintained
-  address before publishing this repository) with a description of the issue, steps to
-  reproduce, and any relevant logs/screenshots.
+- Open a [GitHub Security Advisory](../../security/advisories/new) on this repository (private
+  to maintainers until resolved) with a description of the issue, steps to reproduce, and any
+  relevant logs/screenshots.
 
 Please do not open a public GitHub issue for a security vulnerability.
 
