@@ -1,7 +1,7 @@
 # TabBatch
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Android CI](https://github.com/OWNER/tabbatch/actions/workflows/android.yml/badge.svg)](.github/workflows/android.yml)
+[![Android CI](https://github.com/DananjayaNadun/tabbatch/actions/workflows/android.yml/badge.svg)](.github/workflows/android.yml)
 
 **Organize large collections of browser tab URLs and export them to PDF, CSV, JSON, or text — locally, on Android.**
 
