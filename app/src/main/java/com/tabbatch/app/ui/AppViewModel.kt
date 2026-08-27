@@ -29,6 +29,11 @@ sealed class ImportUiState {
     data object Idle : ImportUiState()
     data object Loading : ImportUiState()
     data class Failed(val errors: List<RejectedInput>) : ImportUiState()
+
+    /** Import succeeded but some lines/rows were rejected — e.g. "57 of 60 imported, 3
+     * invalid" — so the user sees a partial-success summary instead of a silent drop. */
+    data class PartialSuccess(val acceptedCount: Int, val totalCount: Int, val errors: List<RejectedInput>) :
+        ImportUiState()
 }
 
 sealed class ExportUiState {
@@ -93,7 +98,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 records = reindexed,
             ),
         )
-        _importState.value = ImportUiState.Idle
+        _importState.value = if (result.rejected.isNotEmpty()) {
+            ImportUiState.PartialSuccess(
+                acceptedCount = result.accepted.size,
+                totalCount = result.accepted.size + result.rejected.size,
+                errors = result.rejected,
+            )
+        } else {
+            ImportUiState.Idle
+        }
         _selectedIds.value = emptySet()
     }
 

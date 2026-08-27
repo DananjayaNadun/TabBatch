@@ -153,6 +153,33 @@ fun HomeScreen(
                     }
                 }
             }
+
+            if (importState is ImportUiState.PartialSuccess) {
+                val partial = importState as ImportUiState.PartialSuccess
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            "${partial.acceptedCount} of ${partial.totalCount} imported, " +
+                                "${partial.errors.size} invalid",
+                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                        )
+                        LazyColumn {
+                            items(partial.errors.take(10)) { rejection ->
+                                Text(
+                                    "• ${rejection.rawText.take(60)} — ${rejection.reason.message}",
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+                        if (partial.errors.size > 10) {
+                            Text(
+                                "…and ${partial.errors.size - 10} more.",
+                                style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
