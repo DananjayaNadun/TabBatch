@@ -26,6 +26,12 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test --stacktrace
 
+      - name: Run lint
+        run: ./gradlew lint --stacktrace
+
+      - name: Run check
+        run: ./gradlew check --stacktrace
+
       - name: Assemble debug APK
         run: ./gradlew assembleDebug --stacktrace
 
@@ -35,6 +41,13 @@ jobs:
         with:
           name: unit-test-results
           path: app/build/reports/tests/testDebugUnitTest/
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
