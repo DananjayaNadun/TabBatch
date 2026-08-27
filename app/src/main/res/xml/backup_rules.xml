@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude generated export files and cached collections from Android auto-backup;
+         they are transient/regeneratable and may contain sensitive URLs. -->
+    <exclude domain="file" path="." />
+</full-backup-content>

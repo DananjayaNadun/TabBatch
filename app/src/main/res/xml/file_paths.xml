@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Generated exports are written to the app's cache dir under /exports and
+         shared out through FileProvider content:// URIs. -->
+    <cache-path name="exports" path="exports/" />
+</paths>
