@@ -59,7 +59,11 @@ object UrlNormalizer {
             return NormalizeResult.Failure(original, ImportError.UnsupportedScheme(scheme))
         }
 
-        val rawHost = uri.host
+        // java.net.URI#getHost() returns null for internationalized (non-ASCII) hostnames
+        // because they don't match the strict RFC 3986 "host" grammar it enforces — it falls
+        // back to treating the whole authority as opaque. Recover the host from the raw
+        // authority in that case (stripping any userinfo/port) before IDN-converting it.
+        val rawHost = uri.host ?: extractHostFromAuthority(uri.rawAuthority)
         if (rawHost.isNullOrBlank()) {
             return NormalizeResult.Failure(original, ImportError.InvalidUrl(candidate))
         }
@@ -82,6 +86,19 @@ object UrlNormalizer {
             originalUrl = original,
             host = asciiHost,
         )
+    }
+
+    /** Best-effort host extraction from a raw (possibly non-ASCII) authority component, used
+     * only as a fallback when [URI.getHost] returns null for an internationalized hostname. */
+    private fun extractHostFromAuthority(rawAuthority: String?): String? {
+        if (rawAuthority.isNullOrBlank()) return null
+        val withoutUserInfo = rawAuthority.substringAfterLast('@')
+        return if (withoutUserInfo.startsWith("[")) {
+            // IPv6 literal, e.g. "[::1]:8080" -> "[::1]"
+            withoutUserInfo.substringBefore(']') + "]"
+        } else {
+            withoutUserInfo.substringBefore(':')
+        }
     }
 
     private fun stripWrappingQuotes(input: String): String {
