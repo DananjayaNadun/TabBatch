@@ -66,4 +66,58 @@ class CsvExporterTest {
         val csv = CsvExporter.export(TestFixtures.withLongUrl(), ExportOptions())
         assertTrue(csv.contains("segment".repeat(80)))
     }
+
+    @Test
+    fun `title starting with equals is prefixed with apostrophe`() {
+        val records = TestFixtures.of(1).map { it.copy(title = "=SUM(A1:A2)") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains(",'=SUM(A1:A2),"))
+    }
+
+    @Test
+    fun `title starting with plus is prefixed with apostrophe`() {
+        val records = TestFixtures.of(1).map { it.copy(title = "+1+1") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains(",'+1+1,"))
+    }
+
+    @Test
+    fun `title starting with minus is prefixed with apostrophe`() {
+        val records = TestFixtures.of(1).map { it.copy(title = "-2+3") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains(",'-2+3,"))
+    }
+
+    @Test
+    fun `title starting with at is prefixed with apostrophe`() {
+        val records = TestFixtures.of(1).map { it.copy(title = "@SUM(A1:A2)") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains(",'@SUM(A1:A2),"))
+    }
+
+    @Test
+    fun `url starting with equals is prefixed with apostrophe`() {
+        val records = TestFixtures.of(1).map { it.copy(url = "=HYPERLINK(\"http://evil\")", originalUrl = "=HYPERLINK(\"http://evil\")") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains("'=HYPERLINK"))
+    }
+
+    @Test
+    fun `normal urls and titles are byte-for-byte unaffected`() {
+        val records = TestFixtures.of(1)
+        val before = records[0]
+        val csv = CsvExporter.export(records, ExportOptions())
+        // Normal https URLs / plain titles never start with =,+,-,@ so no apostrophe should appear
+        assertTrue(csv.contains(before.url))
+        assertTrue(!csv.contains("'" + before.url))
+        assertTrue(!csv.contains("'https"))
+    }
+
+    @Test
+    fun `internal hyphen in title is not affected`() {
+        val records = TestFixtures.of(1).map { it.copy(title = "well-known site") }
+        val csv = CsvExporter.export(records, ExportOptions())
+        assertTrue(csv.contains(",well-known site,") || csv.contains(",\"well-known site\","))
+        assertTrue(!csv.contains("'well-known"))
+    }
 }

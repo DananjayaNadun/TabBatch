@@ -34,9 +34,16 @@ object CsvExporter {
         return sb.toString()
     }
 
+    /** Leading characters that spreadsheet apps (Excel, Google Sheets, LibreOffice) interpret
+     * as the start of a formula. A field starting with one of these is prefixed with a single
+     * apostrophe to defuse CSV formula injection, per OWASP's recommended mitigation. */
+    private val FORMULA_TRIGGER_CHARS = charArrayOf('=', '+', '-', '@')
+
     private fun csvEscape(value: String): String {
-        val needsQuoting = value.contains(',') || value.contains('"') || value.contains('\n') || value.contains('\r')
-        val escaped = value.replace("\"", "\"\"")
+        val sanitized = if (value.isNotEmpty() && value[0] in FORMULA_TRIGGER_CHARS) "'$value" else value
+        val needsQuoting =
+            sanitized.contains(',') || sanitized.contains('"') || sanitized.contains('\n') || sanitized.contains('\r')
+        val escaped = sanitized.replace("\"", "\"\"")
         return if (needsQuoting) "\"$escaped\"" else escaped
     }
 }

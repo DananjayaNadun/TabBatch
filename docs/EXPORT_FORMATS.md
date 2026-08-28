@@ -22,6 +22,13 @@ order,id,title,url,original_url,host,registrable_domain,source,created_at
 - `source` is the `TabSource` enum name (e.g. `Clipboard`, `SharedText`, `TextFile`, `Csv`,
   `Json`).
 - `created_at` is an epoch-millisecond timestamp.
+- **CSV formula injection mitigation:** any cell whose value starts with `=`, `+`, `-`, or `@`
+  (the characters spreadsheet apps treat as the start of a formula) is prefixed with a single
+  leading apostrophe (`'`) before quoting, per the standard OWASP mitigation for CSV injection.
+  This forces Excel/Google Sheets/LibreOffice to treat the value as plain text instead of
+  evaluating it as a formula when a user opens the exported CSV. The apostrophe is only added
+  when the field's first character is one of those four; it is never added elsewhere, so normal
+  titles and URLs (which never start with those characters) are emitted byte-for-byte unchanged.
 
 ## JSON — `domain/export/JsonExporter.kt` / `TabBatchJsonSchema.kt`
 
