@@ -29,6 +29,12 @@ Captured on an Android emulator (API 34, 1080x2400) from a 60-URL synthetic demo
 |---|---|
 | ![Group detail](docs/screenshots/group.png) | ![Export screen](docs/screenshots/export.png) |
 
+## Download
+
+The first release (v0.1.0) will be published shortly on the
+[Releases page](https://github.com/DananjayaNadun/TabBatch/releases/latest). Until then, build
+from source (see below) — the app is not yet published to Google Play.
+
 ## Features
 
 - **Import** — paste a multiline list of URLs, receive a share (`ACTION_SEND`) from another app,
@@ -44,34 +50,44 @@ Captured on an Android emulator (API 34, 1080x2400) from a 60-URL synthetic demo
 - **Export** — PDF, CSV, JSON (versioned schema), and plain text, all generated on-device.
 - **Share** — hand the exported file to any app via the standard Android share sheet.
 
-## Live Chrome tab access is NOT supported — and that's deliberate
+## A note on Chrome tab access
 
-**TabBatch cannot read, list, or control the tabs currently open in Chrome for Android**, and it
-never will unless Google ships a public API for that. There is no `chrome.tabs`-equivalent
-surface exposed to ordinary third-party Android apps, and Chrome for Android does not support
-desktop-style browser extensions. Any tool that claims to "connect to your open Chrome tabs" on
-stock Android is either using an unsupported private mechanism, or lying.
-
-Because of that, TabBatch is built around three input paths that Android genuinely supports:
-
-1. **Share intent** — select your tabs in Chrome, use Share, pick TabBatch.
-2. **Manual paste** — copy a list of URLs and paste it in.
-3. **File import** — export a `.txt`/`.csv` from wherever you have one and import it.
-
-The codebase does define a `BrowserTabSource` abstraction (see
-[`platform/browser/BrowserTabSource.kt`](app/src/main/java/com/tabbatch/app/platform/browser/BrowserTabSource.kt))
-so a real adapter could be added later *if* a supported mechanism ever appears — but the only
-implementation shipped today truthfully reports itself as unavailable. See
+TabBatch does not read, list, or control the tabs currently open in Chrome for Android — Android
+gives ordinary third-party apps no public API to do that, so instead of faking it, TabBatch is
+built around three input paths Android genuinely supports: share intent, manual paste, and file
+import. This is a deliberate platform-aware design choice, not a missing feature — see
 [`docs/PLATFORM_LIMITATIONS.md`](docs/PLATFORM_LIMITATIONS.md) and
 [`docs/ARCHITECTURE_DECISIONS.md`](docs/ARCHITECTURE_DECISIONS.md) (ADR-0001) for the full
 rationale.
 
 ## Privacy
 
-- No analytics, ads, or telemetry.
-- No account, no server, no network calls required for core functionality.
+- No account, no backend, no analytics, no telemetry, no ads.
+- No network calls required for core functionality — the app does not even request the
+  `INTERNET` permission (see `app/src/main/AndroidManifest.xml`).
 - URLs and titles are processed and stored on-device only.
 - Exports only leave the device when you explicitly share them.
+
+## Technical highlights
+
+- Kotlin, Jetpack Compose, Material 3.
+- compileSdk/targetSdk 35, minSdk 26 (Android 8.0+).
+- Gradle Kotlin DSL, version catalogs (AGP 8.5.2, Kotlin 2.0.21, Compose BOM 2024.10.00).
+- Domain layer (`domain/model`, `domain/normalizer`, `domain/grouping`, `domain/dedup`,
+  `domain/parser`, `domain/export`) has zero Android framework dependency and is unit-tested on
+  the plain JVM.
+- GitHub Actions CI (`android.yml`) runs unit tests, lint, and a debug build on every push/PR.
+
+## Testing
+
+- 81 JUnit unit tests over the domain layer, run on the plain JVM
+  (`gradlew.bat test` / `./gradlew test`): URL normalization, registrable-domain grouping,
+  duplicate detection, CSV/JSON/text import and export, known grouping-heuristic limitations, and
+  a synthetic 1,000+ record pipeline stress test.
+- An instrumented test (`PdfExporterInstrumentedTest`, runs on-device/emulator) covers PDF export
+  pagination for large collections.
+- Compose UI screens and `CollectionRepository` do not yet have instrumentation/UI test coverage
+  — tracked as future work.
 
 ## Architecture
 
@@ -119,14 +135,21 @@ See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for local setup details.
 
 ## Roadmap
 
-Not MVP-blocking, tracked as future work:
+**Implemented:** everything in Features/Testing above — share import, paste, file import
+(txt/csv/json), normalization, domain grouping, duplicate detection, search/select, PDF/CSV/
+JSON/text export, share-sheet export, domain-layer unit tests, CI.
+
+**Future (not MVP-blocking, not implemented yet):**
 
 - Reading-time / URL health checks, domain statistics.
 - ZIP export bundling PDF + CSV + JSON.
 - Additional browser-specific import adapters (session-file formats).
-- Experimental accessibility-service automation spike — evaluated only as future research; see
-  [`docs/PLATFORM_LIMITATIONS.md`](docs/PLATFORM_LIMITATIONS.md). Not implemented, and not a
-  substitute for an official API.
+- Compose UI / instrumentation test coverage beyond PDF export.
+
+**Experimental research only — not implemented, no timeline:** an accessibility-service
+automation spike was considered and explicitly rejected for the current app (privacy tradeoff,
+fragility, Play policy risk). See [`docs/PLATFORM_LIMITATIONS.md`](docs/PLATFORM_LIMITATIONS.md)
+for why. It is not on the roadmap as a planned feature.
 
 ## Contributing
 
