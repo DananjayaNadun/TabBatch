@@ -62,6 +62,23 @@ For the full check (tests + lint):
 gradlew.bat check
 ```
 
+## Reproducing a signed release build
+
+`app/build.gradle.kts` reads release signing config from a git-ignored `keystore.properties`
+file at the repo root, if present:
+
+```properties
+storeFile=/absolute/path/to/your-release.jks
+storePassword=...
+keyAlias=your-key-alias
+keyPassword=...
+```
+
+If `keystore.properties` is absent (fresh clones, CI), the `release` build type is simply left
+unsigned — `assembleDebug`, `test`, `lint`, and `check` all work without it. To produce a signed
+release APK, generate your own keystore with `keytool`, create `keystore.properties` pointing at
+it, then run `gradlew.bat assembleRelease`. Never commit the keystore or `keystore.properties`.
+
 ### A note on non-ASCII checkout paths on Windows
 
 If your checkout path contains non-ASCII characters (accented letters, em dashes, etc.), two

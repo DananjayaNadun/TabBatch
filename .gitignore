@@ -14,3 +14,9 @@ app/release/
 *.aab
 *.hprof
 /.kotlin/
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+keystore.properties
